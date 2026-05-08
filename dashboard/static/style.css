@@ -707,6 +707,66 @@ footer[role="contentinfo"] {
 .legal h2:first-child { margin-top: 0; }
 .legal p { color: var(--text-md); margin-bottom: .5rem; }
 
+/* ── Cookie consent banner ─────────────────────────────────── */
+.cookie-banner {
+  display: none;            /* hidden by default; the JS adds .consent-pending
+                               to <html> when there is no saved choice */
+  position: fixed;
+  left: 1rem; right: 1rem; bottom: 1rem;
+  max-width: 740px;
+  margin: 0 auto;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-md);
+  border-radius: var(--r12);
+  box-shadow: var(--sh-lg);
+  padding: 1rem 1.25rem;
+  z-index: 90;
+  font-size: .9rem;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+:root.consent-pending .cookie-banner { display: flex; }
+
+.cookie-banner-text { flex: 1 1 360px; }
+.cookie-banner-title {
+  font-size: .95rem;
+  font-weight: 700;
+  margin: 0 0 .25rem;
+  color: var(--slate-900);
+}
+.cookie-banner p {
+  margin: 0;
+  color: var(--text-md);
+  line-height: 1.45;
+}
+.cookie-banner-actions {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.cookie-banner-actions .btn-sm {
+  padding: .45rem .9rem;
+  font-size: .85rem;
+}
+
+@media (max-width: 540px) {
+  .cookie-banner {
+    flex-direction: column;
+    align-items: stretch;
+    left: .5rem; right: .5rem; bottom: .5rem;
+    padding: .85rem 1rem;
+  }
+  .cookie-banner-actions { width: 100%; }
+  .cookie-banner-actions .btn-sm { flex: 1; justify-content: center; }
+}
+
+/* Banner has no place in the printable / PDF rendition. */
+@media print { .cookie-banner { display: none !important; } }
+
 /* ── Misc helpers ──────────────────────────────────────────── */
 .muted { color: var(--text-sm); font-style: italic; }
 .error-trace {

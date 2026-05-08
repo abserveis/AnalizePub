@@ -94,6 +94,14 @@ STATIC_DIR = Path(__file__).resolve().parent / 'static'
 COOKIE_SESSION = 'apub_sid'
 COOKIE_LANG = 'apub_lang'
 
+# ── Production URLs and tracking IDs ────────────────────────────────────────
+SITE_URL = os.environ.get('ANALIZEPUB_SITE_URL', 'https://analizepub.app')
+GTM_ID   = os.environ.get('ANALIZEPUB_GTM_ID',   'GTM-MZKJ6H5Z')
+GA_ID    = os.environ.get('ANALIZEPUB_GA_ID',    'G-BQ6NW9DEKP')
+
+# Map UI language → Open Graph locale
+_OG_LOCALE = {'es': 'es_ES', 'en': 'en_US', 'ca': 'ca_ES'}
+
 logging.basicConfig(
     level=os.environ.get('LOG_LEVEL', 'INFO'),
     format='%(asctime)s [%(levelname)s] %(message)s',
@@ -459,57 +467,244 @@ def _now_iso() -> str:
 
 def layout(*, lang: str, title: str, body: str,
            active_nav: str = '',
-           inline_assets: bool = False) -> str:
+           inline_assets: bool = False,
+           canonical_path: str = '/',
+           noindex: bool = False) -> str:
     """Page chrome shared by every UI page.
 
     Modes
     -----
     Live web view (default)
-        Links to /static/style.css and loads Lucide via CDN. The user
-        prints the report directly from the browser via the Print button;
-        the @media print rules produce a clean, paginated PDF.
+        Links to /static/style.css, loads Lucide via CDN, includes SEO
+        meta tags + Google Tag Manager + Google Analytics.
     Download HTML (`inline_assets=True`)
         Inlines the stylesheet so the file is self-contained when opened
-        from disk. Uses the slim chrome variants.
+        from disk. Uses the slim chrome variants. SEO and tracking are
+        intentionally OFF — the file is meant to be read offline, not
+        crawled or instrumented.
     """
+    description = t(lang, 'brand_tagline')
+
     if inline_assets:
         try:
             css = (STATIC_DIR / 'style.css').read_text(encoding='utf-8')
             head_assets = f'<style>{css}</style>'
         except OSError:
             head_assets = (
-                '<link rel="stylesheet" '
-                'href="https://analizepub.app/static/style.css">'
+                f'<link rel="stylesheet" href="{SITE_URL}/static/style.css">'
             )
         chrome = _render_header(lang, active_nav, slim=True)
         footer = _render_footer(lang, slim=True)
-        # Static HTML download: no JS needed.
         scripts = ''
+        seo_block = ''
+        tracking_head = ''
+        tracking_noscript = ''
+        consent_banner = ''
     else:
         head_assets = '<link rel="stylesheet" href="/static/style.css">'
         chrome = _render_header(lang, active_nav)
         footer = _render_footer(lang)
         scripts = _LUCIDE_SCRIPT
+        seo_block = _render_seo(lang, title, description, canonical_path, noindex)
+        tracking_head = _render_tracking_head()
+        tracking_noscript = _render_tracking_noscript()
+        consent_banner = _render_consent_banner(lang)
 
     return f"""<!doctype html>
 <html lang="{E(lang)}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+{tracking_head}
 <title>{E(title)}</title>
-<meta name="description" content="{E(t(lang, 'brand_tagline'))}">
+<meta name="description" content="{E(description)}">
+{seo_block}
 {head_assets}
 </head>
 <body>
+{tracking_noscript}
 {chrome}
 <main id="main-content" class="container" tabindex="-1">
 {body}
 </main>
 {footer}
+{consent_banner}
 {scripts}
 </body>
 </html>
 """
+
+
+def _render_seo(lang: str, title: str, description: str,
+                canonical_path: str, noindex: bool) -> str:
+    """Canonical + Open Graph + Twitter Card meta tags."""
+    canonical = f'{SITE_URL}{canonical_path}'
+    locale = _OG_LOCALE.get(lang, 'es_ES')
+    robots = 'noindex, nofollow' if noindex else 'index, follow'
+    og_image = f'{SITE_URL}/static/og-image.png'  # will fall back gracefully
+    return (
+        f'<meta name="robots" content="{robots}">\n'
+        f'<link rel="canonical" href="{canonical}">\n'
+        f'<meta name="theme-color" content="#0f172a">\n'
+        f'<meta property="og:type" content="website">\n'
+        f'<meta property="og:site_name" content="AnalizePub">\n'
+        f'<meta property="og:url" content="{canonical}">\n'
+        f'<meta property="og:title" content="{E(title)}">\n'
+        f'<meta property="og:description" content="{E(description)}">\n'
+        f'<meta property="og:locale" content="{locale}">\n'
+        f'<meta property="og:image" content="{og_image}">\n'
+        f'<meta name="twitter:card" content="summary_large_image">\n'
+        f'<meta name="twitter:title" content="{E(title)}">\n'
+        f'<meta name="twitter:description" content="{E(description)}">\n'
+        f'<meta name="twitter:image" content="{og_image}">'
+    )
+
+
+def _render_tracking_head() -> str:
+    """Consent Mode v2 + GTM + GA (gtag.js).
+
+    Order of execution in <head>:
+      1. dataLayer + gtag bootstrap
+      2. Consent default — analytics_storage starts DENIED until the user
+         opts in via the cookie banner. Reads previous choice from
+         localStorage so returning visitors don't see the banner again.
+      3. The class `consent-pending` is added to <html> when there is no
+         saved choice → CSS reveals the banner without flicker.
+      4. GTM init script (only after consent default is set).
+      5. gtag.js loaded async, then `gtag('config', GA_ID)`.
+
+    The exposed globals `apubConsent(d)` and `apubShowConsent()` are used
+    by the banner buttons and by the "Cookie settings" link in the footer.
+    """
+    return (
+        '<!-- Consent Mode v2 + GTM + GA -->\n'
+        '<script>\n'
+        '  window.dataLayer = window.dataLayer || [];\n'
+        '  function gtag(){dataLayer.push(arguments);}\n'
+        '\n'
+        '  var apubSavedConsent = null;\n'
+        '  try { apubSavedConsent = localStorage.getItem("apub_consent"); }\n'
+        '  catch (e) {}\n'
+        '\n'
+        '  gtag("consent", "default", {\n'
+        '    "ad_storage":            "denied",\n'
+        '    "ad_user_data":          "denied",\n'
+        '    "ad_personalization":    "denied",\n'
+        '    "analytics_storage":     apubSavedConsent === "granted" ? "granted" : "denied",\n'
+        '    "functionality_storage": "granted",\n'
+        '    "personalization_storage":"denied",\n'
+        '    "security_storage":      "granted"\n'
+        '  });\n'
+        '\n'
+        '  if (!apubSavedConsent) {\n'
+        '    document.documentElement.classList.add("consent-pending");\n'
+        '  }\n'
+        '\n'
+        '  // Globals used by the banner buttons and the footer link.\n'
+        '  window.apubConsent = function (decision) {\n'
+        '    try { localStorage.setItem("apub_consent", decision); } catch (e) {}\n'
+        '    gtag("consent", "update", {\n'
+        '      "analytics_storage": decision === "granted" ? "granted" : "denied"\n'
+        '    });\n'
+        '    document.documentElement.classList.remove("consent-pending");\n'
+        '  };\n'
+        '  window.apubShowConsent = function () {\n'
+        '    document.documentElement.classList.add("consent-pending");\n'
+        '  };\n'
+        '\n'
+        '  // GTM bootstrap (after consent default).\n'
+        '  (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":\n'
+        '  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],\n'
+        '  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=\n'
+        '  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);\n'
+        f'  }})(window,document,"script","dataLayer","{GTM_ID}");\n'
+        '</script>\n'
+        '<!-- End Consent + GTM -->\n'
+        '<!-- Google tag (gtag.js) -->\n'
+        f'<script async src="https://www.googletagmanager.com/gtag/js?id={GA_ID}"></script>\n'
+        '<script>\n'
+        '  gtag("js", new Date());\n'
+        f'  gtag("config", "{GA_ID}");\n'
+        '</script>'
+    )
+
+
+def _render_tracking_noscript() -> str:
+    """GTM noscript fallback — must go right after <body>."""
+    return (
+        '<!-- Google Tag Manager (noscript) -->\n'
+        f'<noscript><iframe src="https://www.googletagmanager.com/ns.html?id={GTM_ID}"\n'
+        'height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>\n'
+        '<!-- End Google Tag Manager (noscript) -->'
+    )
+
+
+def _render_consent_banner(lang: str) -> str:
+    """Cookie consent banner — visible only when <html> has the
+    `consent-pending` class (set by the bootstrap script in head when no
+    saved choice exists). The buttons call the globals `apubConsent` and
+    a link in the footer calls `apubShowConsent` to re-open it.
+    """
+    return f"""
+<div id="cookie-banner" class="cookie-banner"
+     role="dialog"
+     aria-modal="false"
+     aria-labelledby="cookie-banner-title"
+     aria-describedby="cookie-banner-desc">
+  <div class="cookie-banner-text">
+    <h2 id="cookie-banner-title" class="cookie-banner-title">{E(t(lang, 'cookie_title'))}</h2>
+    <p id="cookie-banner-desc">{E(t(lang, 'cookie_text'))}</p>
+  </div>
+  <div class="cookie-banner-actions">
+    <button type="button" class="btn btn-primary btn-sm"
+            onclick="apubConsent('granted')">{E(t(lang, 'cookie_accept'))}</button>
+    <button type="button" class="btn btn-secondary btn-sm"
+            onclick="apubConsent('denied')">{E(t(lang, 'cookie_reject'))}</button>
+    <a href="/legal" class="btn btn-ghost btn-sm">{E(t(lang, 'cookie_more'))}</a>
+  </div>
+</div>
+"""
+
+
+def _render_robots_txt() -> str:
+    """Robots.txt — index public pages, hide session-specific ones."""
+    return (
+        'User-agent: *\n'
+        'Allow: /\n'
+        'Disallow: /report\n'
+        'Disallow: /report/\n'
+        'Disallow: /upload\n'
+        'Disallow: /reset\n'
+        'Disallow: /set-lang\n'
+        '\n'
+        f'Sitemap: {SITE_URL}/sitemap.xml\n'
+    )
+
+
+def _render_sitemap_xml() -> str:
+    """Sitemap with the three indexable pages."""
+    today = _dt.date.today().isoformat()
+    urls = [
+        ('/',      '1.0', 'monthly'),
+        ('/help',  '0.7', 'monthly'),
+        ('/legal', '0.3', 'yearly'),
+    ]
+    items = []
+    for path, prio, freq in urls:
+        items.append(
+            f'  <url>\n'
+            f'    <loc>{SITE_URL}{path}</loc>\n'
+            f'    <lastmod>{today}</lastmod>\n'
+            f'    <changefreq>{freq}</changefreq>\n'
+            f'    <priority>{prio}</priority>\n'
+            f'  </url>'
+        )
+    return (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + '\n'.join(items) + '\n'
+        '</urlset>\n'
+    )
 
 
 # Lucide UMD via unpkg (the official browser-CDN documented by Lucide).
@@ -676,6 +871,7 @@ def _render_footer(lang: str, *, slim: bool = False) -> str:
     <span>{copy}</span>
     <span class="footer-links">
       <a href="/legal">{E(t(lang, 'footer_legal'))}</a>
+      <a href="#" onclick="apubShowConsent();return false;">{E(t(lang, 'footer_cookies'))}</a>
       <a href="https://accespub.app" rel="external">{E(t(lang, 'footer_accespub'))}</a>
     </span>
   </div>
@@ -778,7 +974,7 @@ def render_upload(lang: str, *, error: str | None = None) -> str:
 </script>
 """
     return layout(lang=lang, title=f"{t(lang, 'brand_name')} — {t(lang, 'brand_tagline')}",
-                  body=body, active_nav='home')
+                  body=body, active_nav='home', canonical_path='/')
 
 
 def js_str(s: str) -> str:
@@ -851,6 +1047,8 @@ def render_report(lang: str, session: dict, *, for_download: bool = False) -> st
         title=f"{t(lang, 'report_h1')} — {meta.get('filename', '')}",
         body=body,
         inline_assets=for_download,
+        canonical_path='/report',
+        noindex=True,  # Per-session report — never index
     )
 
 
@@ -1242,7 +1440,8 @@ def render_help(lang: str) -> str:
 <header class="page-head"><h1>{E(t(lang, 'help_h1'))}</h1></header>
 <section class="faq">{rows}</section>
 """
-    return layout(lang=lang, title=t(lang, 'help_h1'), body=body, active_nav='help')
+    return layout(lang=lang, title=t(lang, 'help_h1'), body=body,
+                  active_nav='help', canonical_path='/help')
 
 
 def render_legal(lang: str) -> str:
@@ -1258,7 +1457,8 @@ def render_legal(lang: str) -> str:
     for h, b in sections:
         body += f'<h2>{E(t(lang, h))}</h2><p>{E(t(lang, b))}</p>'
     body += '</section>'
-    return layout(lang=lang, title=t(lang, 'legal_h1'), body=body, active_nav='legal')
+    return layout(lang=lang, title=t(lang, 'legal_h1'), body=body,
+                  active_nav='legal', canonical_path='/legal')
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1402,6 +1602,14 @@ class Handler(BaseHTTPRequestHandler):
 
             if route == '/report/download':
                 return self._handle_report(lang, mode='download_html')
+
+            if route == '/robots.txt':
+                return self._send_text(_render_robots_txt(),
+                                       content_type='text/plain; charset=utf-8')
+
+            if route == '/sitemap.xml':
+                return self._send_text(_render_sitemap_xml(),
+                                       content_type='application/xml; charset=utf-8')
 
             if route.startswith('/static/'):
                 return self._serve_static(route[len('/static/'):])

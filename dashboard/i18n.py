@@ -69,7 +69,17 @@ _T: dict[str, dict[str, str]] = {
     'footer_text':        'AnalizePub — Análisis gratuito de accesibilidad EPUB',
     'footer_legal':       'Aviso legal',
     'footer_privacy':     'Privacidad',
+    'footer_cookies':     'Configurar cookies',
     'footer_accespub':    'Conoce AccesPub',
+
+    # Cookie consent banner
+    'cookie_title':       'Cookies y analítica',
+    'cookie_text':        'Usamos Google Analytics para entender el uso de la herramienta y '
+                          'mejorarla. La analítica solo se activa si la aceptas. Puedes cambiar '
+                          'tu elección cuando quieras desde el enlace «Configurar cookies» del pie.',
+    'cookie_accept':      'Aceptar',
+    'cookie_reject':      'Rechazar',
+    'cookie_more':        'Más información',
 
     # Language
     'lang_label':         'Idioma:',
@@ -311,9 +321,13 @@ _T: dict[str, dict[str, str]] = {
     'legal_purpose_body': 'AnalizePub analiza ficheros EPUB y genera informes de accesibilidad. '
                           'No corrige el fichero, no convierte versiones y no exporta nada.',
     'legal_data_h2':      'Datos personales y privacidad',
-    'legal_data_body':    'No recogemos datos personales. Las sesiones de análisis se identifican '
-                          'mediante una cookie técnica anónima (UUID) que caduca a las 2 horas. '
-                          'No usamos cookies de seguimiento, analítica de terceros ni publicidad.',
+    'legal_data_body':    'No recogemos datos personales identificables directamente. Las sesiones '
+                          'de análisis se identifican mediante una cookie técnica anónima (UUID) '
+                          'que caduca a las 2 horas. Para entender el uso de la herramienta y '
+                          'mejorarla, utilizamos Google Analytics 4 a través de Google Tag '
+                          'Manager, que recogen datos de uso pseudonimizados (páginas visitadas, '
+                          'navegador, país aproximado, dispositivo) conforme a las políticas de '
+                          'privacidad de Google. No usamos cookies de publicidad ni perfilado.',
     'legal_files_h2':     'Tratamiento de tus ficheros',
     'legal_files_body':   'El EPUB se procesa en memoria y se descarta inmediatamente. Únicamente '
                           'se guarda el informe (sin contenido del libro) en un fichero temporal '
@@ -348,7 +362,17 @@ _T: dict[str, dict[str, str]] = {
     'footer_text':        'AnalizePub — Free EPUB accessibility analysis',
     'footer_legal':       'Legal notice',
     'footer_privacy':     'Privacy',
+    'footer_cookies':     'Cookie settings',
     'footer_accespub':    'Discover AccesPub',
+
+    # Cookie consent banner
+    'cookie_title':       'Cookies and analytics',
+    'cookie_text':        'We use Google Analytics to understand how the tool is used and '
+                          'improve it. Analytics only runs if you accept. You can change your '
+                          'choice any time from the "Cookie settings" link in the footer.',
+    'cookie_accept':      'Accept',
+    'cookie_reject':      'Reject',
+    'cookie_more':        'More info',
 
     'lang_label':         'Language:',
     'lang_es':            'Español',
@@ -573,9 +597,13 @@ _T: dict[str, dict[str, str]] = {
     'legal_purpose_body': 'AnalizePub analyses EPUB files and generates accessibility reports. '
                           'It does not fix, convert or export anything.',
     'legal_data_h2':      'Personal data and privacy',
-    'legal_data_body':    'We do not collect personal data. Analysis sessions are identified by '
-                          'a technical, anonymous cookie (UUID) that expires after 2 hours. We '
-                          'do not use third-party tracking, analytics or advertising cookies.',
+    'legal_data_body':    'We do not directly collect personally identifiable data. Analysis '
+                          'sessions are identified by a technical, anonymous cookie (UUID) that '
+                          'expires after 2 hours. To understand how the tool is used and improve '
+                          'it, we use Google Analytics 4 via Google Tag Manager, which collects '
+                          'pseudonymised usage data (pages visited, browser, approximate country, '
+                          'device) under Google\'s privacy policy. We do not use advertising or '
+                          'profiling cookies.',
     'legal_files_h2':     'How we handle your files',
     'legal_files_body':   'The EPUB is processed in memory and discarded immediately. Only the '
                           'report (no book content) is stored in a temporary file that is '
@@ -609,7 +637,17 @@ _T: dict[str, dict[str, str]] = {
     'footer_text':        'AnalizePub — Anàlisi gratuït d\'accessibilitat EPUB',
     'footer_legal':       'Avís legal',
     'footer_privacy':     'Privacitat',
+    'footer_cookies':     'Configurar galetes',
     'footer_accespub':    'Coneix AccesPub',
+
+    # Cookie consent banner
+    'cookie_title':       'Galetes i analítica',
+    'cookie_text':        'Fem servir Google Analytics per entendre l\'ús de l\'eina i millorar-la. '
+                          'L\'analítica només s\'activa si l\'acceptes. Pots canviar la teva elecció '
+                          'quan vulguis des de l\'enllaç «Configurar galetes» del peu.',
+    'cookie_accept':      'Accepta-les',
+    'cookie_reject':      'Rebutja-les',
+    'cookie_more':        'Més informació',
 
     'lang_label':         'Idioma:',
     'lang_es':            'Español',
@@ -836,9 +874,13 @@ _T: dict[str, dict[str, str]] = {
     'legal_purpose_body': 'AnalizePub analitza fitxers EPUB i genera informes d\'accessibilitat. '
                           'No corregeix el fitxer, no converteix versions ni exporta res.',
     'legal_data_h2':      'Dades personals i privacitat',
-    'legal_data_body':    'No recollim dades personals. Les sessions d\'anàlisi s\'identifiquen '
-                          'amb una galeta tècnica anònima (UUID) que caduca al cap de 2 hores. '
-                          'No fem servir galetes de seguiment, analítica de tercers ni publicitat.',
+    'legal_data_body':    'No recollim dades personals identificables directament. Les sessions '
+                          'd\'anàlisi s\'identifiquen amb una galeta tècnica anònima (UUID) que '
+                          'caduca al cap de 2 hores. Per entendre l\'ús de l\'eina i millorar-la, '
+                          'utilitzem Google Analytics 4 a través de Google Tag Manager, que '
+                          'recullen dades d\'ús pseudonimitzades (pàgines visitades, navegador, '
+                          'país aproximat, dispositiu) segons les polítiques de privadesa de '
+                          'Google. No utilitzem galetes de publicitat ni de perfilat.',
     'legal_files_h2':     'Tractament dels teus fitxers',
     'legal_files_body':   'L\'EPUB es processa en memòria i es descarta immediatament. Només es '
                           'guarda l\'informe (sense contingut del llibre) en un fitxer temporal '
