@@ -1,0 +1,38 @@
+#
+# AnalizePub — Fly.io configuration
+# https://fly.io/docs/reference/configuration/
+#
+app = "analizepub"
+primary_region = "ams"
+
+[build]
+
+[env]
+  HOST = "0.0.0.0"
+  PORT = "8080"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  # Auto-stop / auto-start: turn off when idle, wake on incoming request.
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  # Soft concurrency — analysis is CPU-heavy, so do not stack too much.
+  [http_service.concurrency]
+    type = "requests"
+    soft_limit = 8
+    hard_limit = 12
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"  # 512 MB for the WeasyPrint + Java footprint; lower if RAM is tight
+  cpus = 1
+
+[[restart]]
+  policy = "on-failure"
+  retries = 3
+
+# No persistent volume — sessions live in /tmp and are intentionally ephemeral.

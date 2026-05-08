@@ -1,0 +1,52 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment files
+.env
+.env.local
+*.env
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Sessions and temp data (defensive — they live in /tmp anyway)
+analizepub_sessions/
+*.epub
+*.zip
+
+# Reports / outputs (local testing)
+/tmp_reports/
+/test_outputs/
+
+# Distribution / build
+build/
+dist/
+*.egg-info/
+
+# Coverage / tests
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Fly.io
+.fly/
+fly.toml.bak
