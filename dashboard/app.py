@@ -1455,7 +1455,11 @@ def render_legal(lang: str) -> str:
     body = f'<header class="page-head"><h1>{E(t(lang, "legal_h1"))}</h1></header>'
     body += '<section class="legal">'
     for h, b in sections:
-        body += f'<h2>{E(t(lang, h))}</h2><p>{E(t(lang, b))}</p>'
+        # Preserve embedded newlines in the source string as visible line
+        # breaks. This is what the owner section uses to list NIF, address
+        # and contact email on separate lines.
+        text = E(t(lang, b)).replace('\n', '<br>')
+        body += f'<h2>{E(t(lang, h))}</h2><p>{text}</p>'
     body += '</section>'
     return layout(lang=lang, title=t(lang, 'legal_h1'), body=body,
                   active_nav='legal', canonical_path='/legal')

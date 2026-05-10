@@ -312,11 +312,11 @@ _T: dict[str, dict[str, str]] = {
 
     # ── Legal page ────────────────────────────────────────────────────────
     'legal_h1':           'Aviso legal y política de privacidad',
-    'legal_owner_h2':     'Titular',
-    'legal_owner_body':   'AnalizePub es un servicio prestado por Alberto Barajas, '
-                          'bajo el nombre comercial «ab serveis». '
-                          'NIF: 46629726D. Domicilio: Joan Miró, 19. 08319 Dosrius. '
-                          'Contacto: info@abserveis.net.',
+    'legal_owner_h2':     'Aviso legal',
+    'legal_owner_body':   'Titular: Alberto Barajas González\n'
+                          'NIF: 46629726D\n'
+                          'Domicilio: Joan Miró, 19, 08319 Dosrius (Barcelona)\n'
+                          'Email de contacto: info@abserveis.net',
     'legal_purpose_h2':   'Finalidad del servicio',
     'legal_purpose_body': 'AnalizePub analiza ficheros EPUB y genera informes de accesibilidad. '
                           'No corrige el fichero, no convierte versiones y no exporta nada.',
@@ -588,11 +588,11 @@ _T: dict[str, dict[str, str]] = {
                           'converts EPUB 2 → 3 and exports the remediated EPUB (paid).',
 
     'legal_h1':           'Legal notice & privacy policy',
-    'legal_owner_h2':     'Owner',
-    'legal_owner_body':   'AnalizePub is a service operated by Alberto Barajas, '
-                          'doing business as «ab serveis». '
-                          'Tax ID (NIF): 46629726D. Address: Joan Miró, 19. 08319 Dosrius. '
-                          'Contact: info@abserveis.net.',
+    'legal_owner_h2':     'Legal notice',
+    'legal_owner_body':   'Owner: Alberto Barajas González\n'
+                          'Tax ID (NIF): 46629726D\n'
+                          'Address: Joan Miró, 19, 08319 Dosrius (Barcelona, Spain)\n'
+                          'Contact email: info@abserveis.net',
     'legal_purpose_h2':   'Service purpose',
     'legal_purpose_body': 'AnalizePub analyses EPUB files and generates accessibility reports. '
                           'It does not fix, convert or export anything.',
@@ -865,11 +865,11 @@ _T: dict[str, dict[str, str]] = {
                           'remediat (de pagament).',
 
     'legal_h1':           'Avís legal i política de privacitat',
-    'legal_owner_h2':     'Titular',
-    'legal_owner_body':   'AnalizePub és un servei prestat per Alberto Barajas, '
-                          'sota el nom comercial «ab serveis». '
-                          'NIF: 46629726D. Domicili: Joan Miró, 19. 08319 Dosrius. '
-                          'Contacte: info@abserveis.net.',
+    'legal_owner_h2':     'Avís legal',
+    'legal_owner_body':   'Titular: Alberto Barajas González\n'
+                          'NIF: 46629726D\n'
+                          'Domicili: Joan Miró, 19, 08319 Dosrius (Barcelona)\n'
+                          'Correu de contacte: info@abserveis.net',
     'legal_purpose_h2':   'Finalitat del servei',
     'legal_purpose_body': 'AnalizePub analitza fitxers EPUB i genera informes d\'accessibilitat. '
                           'No corregeix el fitxer, no converteix versions ni exporta res.',
