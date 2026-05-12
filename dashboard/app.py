@@ -314,8 +314,12 @@ def compute_indicators(report: dict, validation: dict) -> dict:
         if i.get('type') in WCAG_TYPES and i.get('severity') in ('moderate', 'minor')
     )
     # Manual reviews count as warnings, not errors.
+    # Images with is_decorative_guess=True have alt="" and are WCAG-compliant;
+    # they appear in a review callout but must NOT degrade the WCAG indicator.
+    # Only images without alt text (is_decorative_guess=False) are true gaps.
     has_manual_review = bool(
-        report.get('images_for_review')
+        any(img for img in (report.get('images_for_review') or [])
+            if not img.get('is_decorative_guess'))
         or report.get('tables_for_review')
         or report.get('lang_items')
     )

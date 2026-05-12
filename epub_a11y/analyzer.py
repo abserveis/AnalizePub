@@ -948,21 +948,13 @@ class EPUBAnalyzer:
                         auto_fixable=True,
                     )
             elif alt == '':
-                # alt="" looks like a WCAG decorative marking, but tools such as
-                # Adobe InDesign set it automatically just to pass ePubCheck — the
-                # image may NOT be truly decorative.  Queue it for human (and AI)
-                # review, pre-selecting "decorative" as the default so the reviewer
-                # can confirm or replace it with real alt text.
-                self._add_issue(
-                    type='image',
-                    severity='moderate',
-                    location=doc_path,
-                    description=(
-                        f'Image has alt="" — may be auto-generated (e.g. InDesign). '
-                        f'Verify whether it is truly decorative: {src}'
-                    ),
-                    auto_fixable=False,
-                )
+                # alt="" is the correct WCAG 2.1 AA implementation for decorative
+                # images (SC 1.1.1).  We do NOT raise an accessibility issue here,
+                # because technically the EPUB is compliant.
+                # However, tools like Adobe InDesign set alt="" automatically just
+                # to pass EPUBCheck, so the image may NOT be truly decorative.
+                # We therefore queue it for human review (callout in Section B)
+                # without degrading the WCAG indicator.
                 context_before, context_after = self._get_context(img)
                 self.images_for_review.append(ImageItem(
                     item_id=f'img_{len(self.images_for_review):04d}',
