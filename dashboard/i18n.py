@@ -257,10 +257,13 @@ _T: dict[str, dict[str, str]] = {
     'issue_pat_contrast':            'Contraste de color insuficiente en "{selector}": {fg} sobre {bg} — ratio {ratio}.',
 
     # Manual review hints (informative, since AnalizePub does not do it)
-    'review_images_h3':   'Imágenes que necesitan revisión humana',
-    'review_images_body': 'Hay {n} imágenes en este EPUB cuyo texto alternativo necesita ser '
-                          'redactado o revisado por una persona. AnalizePub no genera alt text; '
-                          'AccesPub sí lo hace asistido por IA.',
+    'review_images_h3':   'Imágenes marcadas como decorativas',
+    'review_images_body': 'Las {n} imágenes de este EPUB tienen alt="" y están marcadas como '
+                          'decorativas. Esto cumple con WCAG 2.1 AA siempre que las imágenes '
+                          'sean realmente decorativas. Revisa que ninguna transmita información '
+                          'relevante: si alguna lo hace, necesitará un texto alternativo '
+                          'descriptivo. AnalizePub no genera alt text; AccesPub sí, asistido '
+                          'por IA.',
     'review_tables_h3':   'Tablas que necesitan revisión humana',
     'review_tables_body': 'Hay {n} tablas que requieren decidir si son tablas de datos o de '
                           'maquetación, y si la primera fila debe convertirse en cabecera.',
@@ -537,10 +540,13 @@ _T: dict[str, dict[str, str]] = {
     'issue_pat_ncx_uid':             'NCX-001: NCX identifier ("{ncx}") does not match the OPF unique identifier ("{opf}").',
     'issue_pat_contrast':            'Insufficient color contrast in "{selector}": {fg} on {bg} — ratio {ratio}.',
 
-    'review_images_h3':   'Images requiring human review',
-    'review_images_body': '{n} images in this EPUB have alt text that needs to be written or '
-                          'reviewed by a person. AnalizePub does not generate alt text; '
-                          'AccesPub does, with AI assistance.',
+    'review_images_h3':   'Images marked as decorative',
+    'review_images_body': '{n} images in this EPUB have alt="" and are marked as decorative. '
+                          'This meets WCAG 2.1 AA as long as the images are genuinely '
+                          'decorative. Review each one to confirm none conveys meaningful '
+                          'content — any that does will need a descriptive alternative text. '
+                          'AnalizePub does not generate alt text; AccesPub does, with AI '
+                          'assistance.',
     'review_tables_h3':   'Tables requiring human review',
     'review_tables_body': '{n} tables need a decision: data vs. layout, and whether the first '
                           'row should become a header.',
@@ -813,10 +819,12 @@ _T: dict[str, dict[str, str]] = {
     'issue_pat_ncx_uid':             'NCX-001: l\'identificador NCX ("{ncx}") no coincideix amb l\'identificador únic de l\'OPF ("{opf}").',
     'issue_pat_contrast':            'Contrast de color insuficient a "{selector}": {fg} sobre {bg} — ràtio {ratio}.',
 
-    'review_images_h3':   'Imatges que requereixen revisió humana',
-    'review_images_body': '{n} imatges del EPUB tenen text alternatiu que cal redactar o '
-                          'revisar per una persona. AnalizePub no genera alt text; AccesPub '
-                          'sí, amb assistència d\'IA.',
+    'review_images_h3':   'Imatges marcades com a decoratives',
+    'review_images_body': 'Les {n} imatges d\'aquest EPUB tenen alt="" i estan marcades com a '
+                          'decoratives. Això compleix WCAG 2.1 AA sempre que les imatges siguin '
+                          'realment decoratives. Revisa que cap transmeti informació rellevant: '
+                          'si alguna ho fa, necessitarà un text alternatiu descriptiu. '
+                          'AnalizePub no genera alt text; AccesPub sí, assistit per IA.',
     'review_tables_h3':   'Taules que requereixen revisió humana',
     'review_tables_body': '{n} taules requereixen decidir si són de dades o de maquetació, i si '
                           'la primera fila ha de convertir-se en capçalera.',
