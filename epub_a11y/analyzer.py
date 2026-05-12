@@ -42,6 +42,7 @@ class EPUBAnalyzer:
         self._issue_counter = 0
         self.has_page_list: bool = False    # <nav epub:type="page-list"> found in nav doc
         self.has_page_source: bool = False  # OPF already declares pageBreakSource
+        self._spine_image_hrefs: set = set()  # ALL image paths seen in spine docs (incl. those with valid alt)
 
     # ------------------------------------------------------------------ #
     #  Public API
@@ -548,10 +549,6 @@ class EPUBAnalyzer:
         """Analyze each spine document for accessibility issues."""
         opf_dir = str(PurePosixPath(self.opf_path).parent)
 
-        # Track which image hrefs were found inside spine documents so we can
-        # detect cover images declared only in the OPF (EPUB2 pattern).
-        spine_image_hrefs: set = set()
-
         # Build the full list of idrefs to process: spine items first, then
         # the Navigation Document (properties="nav") if it is not already in
         # the spine.  The nav document is never in the spine for many EPUBs
@@ -602,17 +599,15 @@ class EPUBAnalyzer:
             if root is None:
                 continue  # lxml recovery returned empty tree
 
-            before = len(self.images_for_review)
             self._analyze_html_document(root, doc_path, opf_dir)
-            # Record image hrefs found in this spine doc
-            for img_item in self.images_for_review[before:]:
-                spine_image_hrefs.add(img_item.epub_src)
 
         # Fallback: detect cover images declared only in the OPF manifest
         # (EPUB2 pattern: <item id="cover-image" media-type="image/jpeg"/>
         # referenced via <meta name="cover" content="cover-image"/>).
         # If such an image was not found in any spine document, add it for review.
-        self._analyze_opf_cover_image(opf_dir, spine_image_hrefs)
+        # NOTE: self._spine_image_hrefs is populated by _analyze_images for every
+        # <img> tag encountered, regardless of whether alt text is present or valid.
+        self._analyze_opf_cover_image(opf_dir, self._spine_image_hrefs)
 
     def _analyze_page_list(self):
         """
@@ -913,6 +908,11 @@ class EPUBAnalyzer:
                 raw = src.lstrip('/')
             # os.path.normpath resolves '..' segments (works as posixpath on Linux)
             epub_img_path = os.path.normpath(raw).replace(os.sep, '/')
+
+            # Always register this image as "seen in a spine document" so that
+            # _analyze_opf_cover_image does not generate a false-positive error
+            # for cover images that have proper alt text in their XHTML wrapper.
+            self._spine_image_hrefs.add(epub_img_path)
 
             # Heuristic: is this likely decorative?
             is_decorative_guess = self._is_likely_decorative(src, img)
